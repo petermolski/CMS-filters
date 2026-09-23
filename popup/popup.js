@@ -1,8 +1,9 @@
-// Popup Script for YouTube CMS Auto-Filter Extension
+// Popup Script for YouTube CMS Auto-Filter & Linkifier Extension
 
 document.addEventListener('DOMContentLoaded', async () => {
   // DOM Elements
   const autoApplyToggle = document.getElementById('auto-apply-toggle');
+  const linkifyToggle = document.getElementById('linkify-toggle');
   const presetSelect = document.getElementById('preset-select');
   const btnNewPreset = document.getElementById('btn-new-preset');
   const btnApplyTab = document.getElementById('btn-apply-tab');
@@ -18,6 +19,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   let currentData = {
     autoApply: true,
+    linkifyEnabled: true,
     activePresetId: 'default-unclaimed',
     presets: []
   };
@@ -30,6 +32,12 @@ document.addEventListener('DOMContentLoaded', async () => {
     currentData.autoApply = autoApplyToggle.checked;
     await chrome.storage.sync.set({ autoApply: currentData.autoApply });
     showStatus('Auto-Apply setting updated');
+  });
+
+  linkifyToggle.addEventListener('change', async () => {
+    currentData.linkifyEnabled = linkifyToggle.checked;
+    await chrome.storage.sync.set({ linkifyEnabled: currentData.linkifyEnabled });
+    showStatus('Video ID Linkifier setting updated');
   });
 
   presetSelect.addEventListener('change', async () => {
@@ -124,12 +132,14 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   // Functions
   async function loadState() {
-    const data = await chrome.storage.sync.get(['autoApply', 'activePresetId', 'presets']);
+    const data = await chrome.storage.sync.get(['autoApply', 'linkifyEnabled', 'activePresetId', 'presets']);
     currentData.autoApply = data.autoApply ?? true;
+    currentData.linkifyEnabled = data.linkifyEnabled ?? true;
     currentData.presets = data.presets || [];
     currentData.activePresetId = data.activePresetId || (currentData.presets[0]?.id);
 
     autoApplyToggle.checked = currentData.autoApply;
+    linkifyToggle.checked = currentData.linkifyEnabled;
     renderPresetsDropdown();
     renderActivePresetDetails();
   }

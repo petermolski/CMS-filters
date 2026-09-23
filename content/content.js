@@ -1,10 +1,14 @@
-// Content Script for YouTube CMS Auto-Filter Extension
+// Content Script for YouTube CMS Auto-Filter & Video ID Linkifier Extension
 
 (function () {
   'use strict';
 
   let lastUrl = location.href;
   let isRedirecting = false;
+
+  // =========================================================================
+  // 1. YouTube CMS Auto-Filter & Quick Presets Feature
+  // =========================================================================
 
   // Check and auto-apply filters when on YouTube Studio Manual Claims
   async function checkAndApplyFilter() {
@@ -105,8 +109,174 @@
     });
   }
 
-  // SPA Navigation listener (YouTube Studio uses client-side routing)
+  // =========================================================================
+  // 2. YouTube CMS Video ID Linkifier & Copy Button Feature
+  // =========================================================================
+
+  const observedRoots = new WeakSet();
+  const mediaIdRegex = /^Media ID:\s*([a-zA-Z0-9_-]{11})$/i;
+  const videoIdRegex = /^[a-zA-Z0-9_-]{11}$/;
+
+  let linkifyEnabled = true;
+
+  // Check linkify settings from storage
+  chrome.storage.sync.get(['linkifyEnabled'], (data) => {
+    linkifyEnabled = data.linkifyEnabled ?? true;
+  });
+
+  chrome.storage.onChanged.addListener((changes, area) => {
+    if (area === 'sync' && changes.linkifyEnabled) {
+      linkifyEnabled = changes.linkifyEnabled.newValue;
+    }
+  });
+
+  function observeShadowRoot(shadowRoot) {
+    if (observedRoots.has(shadowRoot)) return;
+    observedRoots.add(shadowRoot);
+
+    const observer = new MutationObserver(() => {
+      scheduleLinkifierProcess();
+    });
+
+    observer.observe(shadowRoot, {
+      childList: true,
+      subtree: true
+    });
+  }
+
+  function linkifyElement(el, videoId, watchUrl, isYouTubeSpan) {
+    el.setAttribute('data-ytcms-linkified', 'true');
+
+    const anchor = document.createElement('a');
+    anchor.href = watchUrl;
+    anchor.target = '_blank';
+    anchor.className = 'ytcms-linkifier-link';
+    anchor.textContent = watchUrl;
+
+    if (isYouTubeSpan) {
+      el.textContent = '';
+      el.appendChild(anchor);
+    } else {
+      el.textContent = '';
+      const prefixNode = document.createTextNode('Media ID: ');
+      el.appendChild(prefixNode);
+      el.appendChild(anchor);
+    }
+
+    // Create copy button
+    const copyBtn = document.createElement('button');
+    copyBtn.className = 'ytcms-linkifier-copy-btn';
+    copyBtn.title = 'Copy watch link';
+    copyBtn.setAttribute('aria-label', 'Copy watch link');
+    
+    copyBtn.innerHTML = `
+      <svg viewBox="0 0 24 24">
+        <path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/>
+      </svg>
+      <span class="ytcms-linkifier-tooltip">Copied!</span>
+    `;
+
+    copyBtn.addEventListener('click', async (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+
+      try {
+        await navigator.clipboard.writeText(watchUrl);
+        copyBtn.classList.add('copied');
+
+        const svgPath = copyBtn.querySelector('path');
+        const copyPath = 'M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z';
+        const checkmarkPath = 'M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z';
+        svgPath.setAttribute('d', checkmarkPath);
+
+        const tooltip = copyBtn.querySelector('.ytcms-linkifier-tooltip');
+        tooltip.classList.add('show');
+
+        setTimeout(() => {
+          copyBtn.classList.remove('copied');
+          svgPath.setAttribute('d', copyPath);
+          tooltip.classList.remove('show');
+        }, 1500);
+      } catch (err) {
+        console.error('[YouTube CMS Linkifier] Failed to copy URL:', err);
+      }
+    });
+
+    if (isYouTubeSpan) {
+      el.after(copyBtn);
+    } else {
+      el.appendChild(copyBtn);
+    }
+  }
+
+  function processRoot(root = document) {
+    if (!linkifyEnabled) return;
+
+    // 1. YouTube CMS Video ID spans
+    const youtubeSpans = root.querySelectorAll('span.video-id:not([data-ytcms-linkified])');
+    youtubeSpans.forEach((span) => {
+      const videoId = span.textContent.trim();
+      if (!videoIdRegex.test(videoId)) return;
+
+      const watchUrl = `https://www.youtube.com/watch?v=${videoId}`;
+      linkifyElement(span, videoId, watchUrl, true);
+    });
+
+    // 2. Media ID text elements
+    const textElements = root.querySelectorAll('p:not([data-ytcms-linkified]), span:not([data-ytcms-linkified]), div:not([data-ytcms-linkified]), td:not([data-ytcms-linkified])');
+    textElements.forEach((el) => {
+      if (el.children.length > 0) return;
+
+      const text = el.textContent.trim();
+      const match = mediaIdRegex.exec(text);
+      if (!match) return;
+
+      const videoId = match[1];
+      const watchUrl = `https://www.youtube.com/watch?v=${videoId}`;
+      linkifyElement(el, videoId, watchUrl, false);
+    });
+
+    // 3. Shadow DOM traversal
+    const allElements = root.querySelectorAll('*');
+    for (let i = 0; i < allElements.length; i++) {
+      const el = allElements[i];
+      if (el.shadowRoot) {
+        observeShadowRoot(el.shadowRoot);
+        processRoot(el.shadowRoot);
+      }
+    }
+  }
+
+  let frameRequested = false;
+
+  function scheduleLinkifierProcess() {
+    if (frameRequested || !linkifyEnabled) return;
+    frameRequested = true;
+    requestAnimationFrame(() => {
+      processRoot(document);
+      frameRequested = false;
+    });
+  }
+
+  // =========================================================================
+  // 3. Lifecycle & Observers Initialization
+  // =========================================================================
+
+  function init() {
+    checkAndApplyFilter();
+    scheduleLinkifierProcess();
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', init);
+  } else {
+    init();
+  }
+
+  // SPA navigation & DOM changes observer
   const observer = new MutationObserver(() => {
+    scheduleLinkifierProcess();
+
     if (location.href !== lastUrl) {
       lastUrl = location.href;
       isRedirecting = false;
@@ -114,13 +284,9 @@
     }
   });
 
-  // Initial execution when page loads
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', checkAndApplyFilter);
-  } else {
-    checkAndApplyFilter();
-  }
-
-  observer.observe(document.documentElement, { childList: true, subtree: true });
+  observer.observe(document.documentElement, {
+    childList: true,
+    subtree: true
+  });
 
 })();

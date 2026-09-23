@@ -1,21 +1,24 @@
-# YouTube CMS Auto-Filter & Presets
+# YouTube CMS Auto-Filter & Linkifier
 
-A Google Chrome Extension (Manifest V3) designed for YouTube Content Managers and Rights Operations teams. It automates applying search and sorting filters and provides custom preset management within **YouTube Studio (CMS / Manual Claims)**.
+A unified Google Chrome Extension (Manifest V3) designed for YouTube Content Managers and Rights Operations teams. It automates applying search/sorting filters, manages custom filter presets, and linkifies YouTube Video IDs into copyable watch links within **YouTube Studio (CMS / Rights Manager / Manual Claims)**.
 
 ---
 
-## 🚀 Features
+## 🚀 Key Features
 
-- **Automated Default Filters**: Automatically select and apply default search and sorting parameters whenever you open YouTube Studio Manual Claims.
-- **Custom Presets**: Create, save, and launch custom filter combinations tailored to your workflow.
-- **Modern Extension Popup**: Feature-rich dark UI to configure settings, manage presets, and toggle automated filtering on or off.
-- **Fast Performance**: Lightweight Manifest V3 architecture with background service workers and optimized content injection.
+### ⚡ 1. Auto-Filters & Preset Manager
+- **Automated Default Filters**: Automatically select and apply default search and sorting parameters whenever you visit YouTube Studio Manual Claims.
+- **Custom Presets**: Create, save, and switch between custom filter combinations tailored to your workflow.
+- **Floating Quick Bar**: Injects a sleek, non-intrusive floating pill bar into YouTube Studio for 1-click preset switching.
+
+### 🔗 2. Video ID Linkifier & Copy Button
+- **Plain-Text Linkification**: Automatically turns plain 11-character Video IDs (`span.video-id`) and `Media ID: <ID>` text into clickable watch URLs (`https://www.youtube.com/watch?v=...`).
+- **Interactive Copy Button**: Appends an elegant copy button next to converted links. Clicking it copies the full watch URL to your clipboard with visual checkmark & tooltip feedback.
+- **Shadow DOM & SPA Support**: Seamlessly traverses Polymer Web Component Shadow DOM roots and listens for dynamic page updates using debounced `MutationObserver` instances.
 
 ---
 
 ## 🛠️ Installation (Developer Mode)
-
-Since this extension is in development, you can load it directly into Google Chrome as an unpacked extension:
 
 1. Clone or download this repository:
    ```bash
@@ -34,12 +37,12 @@ Since this extension is in development, you can load it directly into Google Chr
 youtube-cms-filter-extension/
 ├── manifest.json         # Extension Manifest V3 configuration
 ├── popup/
-│   ├── popup.html        # Extension popup interface
+│   ├── popup.html        # Extension popup UI (Toggles, Presets, JSON Editor)
 │   ├── popup.css         # Styling for popup UI
-│   └── popup.js          # Popup UI logic and storage management
+│   └── popup.js          # Popup state & chrome.storage management
 ├── content/
-│   ├── content.js        # Content script injected into studio.youtube.com
-│   └── content.css       # Page styling & overlays
+│   ├── content.js        # Content script (Auto-Filter, Floating Bar, Video ID Linkifier)
+│   └── content.css       # Unified styles (Floating Bar, Links, Copy Buttons, Tooltips)
 ├── scripts/
 │   ├── generate-icons.js # Helper script for generating icon assets
 │   └── generate-icons.py # Python alternative for icon generation
@@ -51,13 +54,12 @@ youtube-cms-filter-extension/
 
 ## 🔑 Permissions & Security
 
-- `storage`: Saves user presets and automation settings locally in Chrome.
-- `tabs`: Allows interacting with active YouTube Studio tabs to apply filter options.
-- `host_permissions`: Strictly restricted to `https://studio.youtube.com/*`.
+- `storage`: Saves user presets and automation toggles locally in Chrome via `chrome.storage.sync`.
+- `tabs`: Enables updating and applying presets to active YouTube Studio tabs.
+- `host_permissions`: Restricted strictly to `https://studio.youtube.com/*` and `https://www.youtube.com/*`.
 
 ---
 
 ## 📄 License
 
 MIT License. Feel free to modify and distribute.
-# CMS-filters

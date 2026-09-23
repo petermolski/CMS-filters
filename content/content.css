@@ -98,3 +98,111 @@
   font-weight: 600;
   box-shadow: 0 2px 8px rgba(255, 0, 51, 0.4);
 }
+
+/* ==========================================
+   YouTube CMS Video ID Linkifier & Copy Styles
+   ========================================== */
+
+/* Links styled like native YouTube Studio links */
+.ytcms-linkifier-link {
+  color: var(--yt-endpoint-color, #065fd4);
+  text-decoration: none;
+  font-weight: 500;
+  transition: color 0.2s ease;
+  word-break: break-all;
+}
+
+.ytcms-linkifier-link:hover {
+  color: var(--yt-spec-call-to-action, #0056b3);
+  text-decoration: underline;
+}
+
+/* Copy button styling */
+.ytcms-linkifier-copy-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: none;
+  border-radius: 4px;
+  padding: 4px;
+  margin-left: 8px;
+  cursor: pointer;
+  color: var(--iron-icon-fill-color, #606060);
+  transition: background-color 0.2s, color 0.2s, transform 0.1s;
+  vertical-align: middle;
+  position: relative;
+}
+
+.ytcms-linkifier-copy-btn:hover {
+  background-color: rgba(0, 0, 0, 0.05);
+  color: var(--yt-spec-text-primary, #0d0d0d);
+}
+
+/* Dark mode adaptation using YouTube studio CSS variables */
+html[dark] .ytcms-linkifier-copy-btn:hover,
+body[dark] .ytcms-linkifier-copy-btn:hover,
+[theme="dark"] .ytcms-linkifier-copy-btn:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+  color: var(--yt-spec-text-primary, #ffffff);
+}
+
+.ytcms-linkifier-copy-btn:active {
+  transform: scale(0.92);
+}
+
+.ytcms-linkifier-copy-btn svg {
+  width: 16px;
+  height: 16px;
+  fill: currentColor;
+  transition: fill 0.2s ease, transform 0.2s ease;
+}
+
+/* Success "Copied" state */
+.ytcms-linkifier-copy-btn.copied {
+  color: var(--yt-spec-suggested-action, #2ba24c) !important;
+}
+
+.ytcms-linkifier-copy-btn.copied svg {
+  transform: scale(1.1);
+}
+
+/* Minimalist tooltip */
+.ytcms-linkifier-tooltip {
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  transform: translateX(-50%) translateY(-4px);
+  background-color: #212121;
+  color: #ffffff;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 11px;
+  font-family: Roboto, Arial, sans-serif;
+  white-space: nowrap;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.2s ease, transform 0.2s ease;
+  z-index: 10000;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+/* Dark mode tooltip overrides */
+html[dark] .ytcms-linkifier-tooltip,
+body[dark] .ytcms-linkifier-tooltip,
+[theme="dark"] .ytcms-linkifier-tooltip {
+  background-color: #f1f1f1;
+  color: #0d0d0d;
+}
+
+.ytcms-linkifier-tooltip.show {
+  opacity: 1;
+  transform: translateX(-50%) translateY(-8px);
+}
+
+/* Ensure the video ID container has correct alignment to prevent awkward wrapping */
+.video-id-container.style-scope.ytcms-manual-claim-create {
+  display: inline-flex;
+  align-items: center;
+  flex-wrap: wrap;
+}

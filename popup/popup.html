@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>YouTube CMS Filter Manager</title>
+  <title>YouTube CMS Filter & Linkifier Manager</title>
   <link rel="stylesheet" href="popup.css">
 </head>
 <body>
@@ -17,8 +17,8 @@
           <polyline points="2 12 12 17 22 12"></polyline>
         </svg>
         <div>
-          <h1>YouTube CMS Filters</h1>
-          <span class="subtitle">Manual Claims Auto-Filter</span>
+          <h1>YouTube CMS Tools</h1>
+          <span class="subtitle">Auto-Filter & Video ID Linkifier</span>
         </div>
       </div>
     </header>
@@ -26,11 +26,23 @@
     <!-- Auto-Apply Toggle Card -->
     <section class="card toggle-card">
       <div class="toggle-info">
-        <span class="toggle-label">Auto-Apply on Visit</span>
-        <span class="toggle-description">Inject default filter when visiting Manual Claims</span>
+        <span class="toggle-label">Auto-Apply Filters</span>
+        <span class="toggle-description">Inject default search & sort on Manual Claims</span>
       </div>
       <label class="switch">
         <input type="checkbox" id="auto-apply-toggle">
+        <span class="slider"></span>
+      </label>
+    </section>
+
+    <!-- Linkify Video IDs Toggle Card -->
+    <section class="card toggle-card">
+      <div class="toggle-info">
+        <span class="toggle-label">Linkify Video IDs</span>
+        <span class="toggle-description">Convert Video IDs into watch links with Copy button</span>
+      </div>
+      <label class="switch">
+        <input type="checkbox" id="linkify-toggle">
         <span class="slider"></span>
       </label>
     </section>
