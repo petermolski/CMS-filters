@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>YouTube CMS Filter Manager</title>
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+  <div class="popup-container">
+    <!-- Header -->
+    <header class="popup-header">
+      <div class="header-brand">
+        <svg class="brand-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <polygon points="12 2 2 7 12 12 22 7 12 2"></polygon>
+          <polyline points="2 17 12 22 22 17"></polyline>
+          <polyline points="2 12 12 17 22 12"></polyline>
+        </svg>
+        <div>
+          <h1>YouTube CMS Filters</h1>
+          <span class="subtitle">Manual Claims Auto-Filter</span>
+        </div>
+      </div>
+    </header>
+
+    <!-- Auto-Apply Toggle Card -->
+    <section class="card toggle-card">
+      <div class="toggle-info">
+        <span class="toggle-label">Auto-Apply on Visit</span>
+        <span class="toggle-description">Inject default filter when visiting Manual Claims</span>
+      </div>
+      <label class="switch">
+        <input type="checkbox" id="auto-apply-toggle">
+        <span class="slider"></span>
+      </label>
+    </section>
+
+    <!-- Active Preset Selector -->
+    <section class="card preset-card">
+      <div class="card-header">
+        <h2>Filter Preset</h2>
+        <button id="btn-new-preset" class="btn-text">+ New Preset</button>
+      </div>
+      <select id="preset-select" class="preset-dropdown"></select>
+    </section>
+
+    <!-- Actions Section -->
+    <section class="action-section">
+      <button id="btn-apply-tab" class="btn btn-primary">
+        ⚡ Apply Filter to Current Tab
+      </button>
+      <button id="btn-open-cms" class="btn btn-secondary">
+        ↗ Open YouTube CMS Claims
+      </button>
+    </section>
+
+    <!-- Active Filter Summary -->
+    <section class="card details-card">
+      <div class="card-header">
+        <h2>Preset Configuration</h2>
+        <button id="btn-toggle-json" class="btn-text">Edit JSON</button>
+      </div>
+
+      <div id="filter-summary" class="summary-list"></div>
+
+      <!-- JSON Raw Editor (Hidden by default) -->
+      <div id="json-editor-container" class="json-container hidden">
+        <label for="json-filter-input" class="editor-label">Filter JSON Array:</label>
+        <textarea id="json-filter-input" rows="5" class="json-textarea"></textarea>
+        
+        <label for="json-sort-input" class="editor-label">Sort JSON Object:</label>
+        <textarea id="json-sort-input" rows="3" class="json-textarea"></textarea>
+        
+        <div class="editor-actions">
+          <button id="btn-save-json" class="btn btn-sm btn-primary">Save Changes</button>
+          <button id="btn-cancel-json" class="btn btn-sm btn-text">Cancel</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Footer Status -->
+    <footer class="popup-footer">
+      <div id="status-message" class="status-msg"></div>
+    </footer>
+  </div>
+
+  <script src="popup.js"></script>
+</body>
+</html>

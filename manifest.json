@@ -1,0 +1,44 @@
+{
+  "manifest_version": 3,
+  "name": "YouTube CMS Auto-Filter & Presets",
+  "version": "1.0.0",
+  "description": "Automatically applies default search & sorting filters and provides quick presets in YouTube Studio Manual Claims.",
+  "icons": {
+    "16": "icons/icon-16.png",
+    "48": "icons/icon-48.png",
+    "128": "icons/icon-128.png"
+  },
+  "permissions": [
+    "storage",
+    "tabs"
+  ],
+  "host_permissions": [
+    "https://studio.youtube.com/*"
+  ],
+  "action": {
+    "default_popup": "popup/popup.html",
+    "default_title": "YouTube CMS Filters",
+    "default_icon": {
+      "16": "icons/icon-16.png",
+      "48": "icons/icon-48.png",
+      "128": "icons/icon-128.png"
+    }
+  },
+  "background": {
+    "service_worker": "service-worker.js"
+  },
+  "content_scripts": [
+    {
+      "matches": [
+        "https://studio.youtube.com/*"
+      ],
+      "js": [
+        "content/content.js"
+      ],
+      "css": [
+        "content/content.css"
+      ],
+      "run_at": "document_start"
+    }
+  ]
+}
