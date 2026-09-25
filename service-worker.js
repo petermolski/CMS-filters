@@ -98,5 +98,7 @@ function buildUrlWithPreset(currentUrlStr, preset) {
 
   url.searchParams.set('filter', JSON.stringify(mergedFilter));
   url.searchParams.set('sort', JSON.stringify(preset.sort));
-  return url.toString();
+
+  // Convert '+' to '%20' for filter & sort parameters so spaces are preserved in YouTube Studio
+  return url.toString().replace(/([?&](?:filter|sort)=[^&]*)/g, (match) => match.replace(/\+/g, '%20'));
 }
