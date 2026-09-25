@@ -8,6 +8,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   const btnEditActive = document.getElementById('btn-edit-active');
   const btnManagePresets = document.getElementById('btn-manage-presets');
   const btnApplyTab = document.getElementById('btn-apply-tab');
+  const btnCaptureCurrent = document.getElementById('btn-capture-current');
   const filterSummary = document.getElementById('filter-summary');
   const btnToggleJson = document.getElementById('btn-toggle-json');
   const jsonContainer = document.getElementById('json-editor-container');
@@ -114,6 +115,66 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
       }
     );
+  });
+
+  btnCaptureCurrent.addEventListener('click', async () => {
+    const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+    if (!tab || !tab.url || !tab.url.includes('studio.youtube.com')) {
+      showStatus('Current tab is not YouTube Studio.', true);
+      return;
+    }
+
+    const url = new URL(tab.url);
+    const filterStr = url.searchParams.get('filter');
+    const sortStr = url.searchParams.get('sort');
+
+    if (!filterStr && !sortStr) {
+      showStatus('No filter/sort parameters in current tab URL.', true);
+      return;
+    }
+
+    let parsedFilter = [];
+    let parsedSort = { columnType: 'totalViews', sortOrder: 'DESCENDING' };
+
+    try {
+      if (filterStr) parsedFilter = JSON.parse(filterStr);
+      if (sortStr) parsedSort = JSON.parse(sortStr);
+    } catch (err) {
+      showStatus('Failed to parse URL search parameters: ' + err.message, true);
+      return;
+    }
+
+    let defaultName = 'Captured Search';
+    const kwRule = parsedFilter.find(r => r.name === 'KEYWORD');
+    if (kwRule && kwRule.value) {
+      let kwText = typeof kwRule.value === 'object' ? kwRule.value.value : kwRule.value;
+      if (kwText) {
+        if (kwText.startsWith('"') && kwText.endsWith('"')) kwText = kwText.slice(1, -1);
+        defaultName = `Search: ${kwText}`;
+      }
+    }
+
+    const presetName = prompt('Enter a name for this captured preset:', defaultName);
+    if (!presetName || !presetName.trim()) return;
+
+    const newPreset = {
+      id: 'preset_' + Date.now(),
+      name: presetName.trim(),
+      filter: parsedFilter,
+      sort: parsedSort
+    };
+
+    currentData.presets.push(newPreset);
+    currentData.activePresetId = newPreset.id;
+
+    await chrome.storage.sync.set({
+      presets: currentData.presets,
+      activePresetId: currentData.activePresetId
+    });
+
+    renderPresetsDropdown();
+    renderActivePresetDetails();
+    showStatus(`Saved search as preset: ${newPreset.name}`);
   });
 
   btnToggleJson.addEventListener('click', () => {

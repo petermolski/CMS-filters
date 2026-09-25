@@ -93,6 +93,7 @@
       <div class="yt-cms-bar-header">
         <span class="yt-cms-bar-title">⚡ CMS Filters</span>
         <div class="yt-cms-bar-actions">
+          <button class="yt-cms-bar-icon-btn" id="yt-cms-capture-btn" title="Save Current URL Search as Preset">📷 Save</button>
           <button class="yt-cms-bar-icon-btn" id="yt-cms-edit-btn" title="Manage Presets Directly On Page">⚙️ Edit</button>
           <button class="yt-cms-bar-toggle" id="yt-cms-toggle-btn" title="Toggle Panel">—</button>
         </div>
@@ -112,6 +113,10 @@
 
     document.getElementById('yt-cms-edit-btn').addEventListener('click', () => {
       openInPagePresetManager();
+    });
+
+    document.getElementById('yt-cms-capture-btn').addEventListener('click', () => {
+      captureCurrentPageSearchAsPreset();
     });
 
     updateToolbarState(toolbar, activePreset, presets);
@@ -147,6 +152,63 @@
   // =========================================================================
 
   let inPageModalOverlay = null;
+
+  async function captureCurrentPageSearchAsPreset() {
+    const url = new URL(location.href);
+    const filterStr = url.searchParams.get('filter');
+    const sortStr = url.searchParams.get('sort');
+
+    if (!filterStr && !sortStr) {
+      alert('No filter or sort search parameters found in the current page URL.');
+      return;
+    }
+
+    let parsedFilter = [];
+    let parsedSort = { columnType: 'totalViews', sortOrder: 'DESCENDING' };
+
+    try {
+      if (filterStr) parsedFilter = JSON.parse(filterStr);
+      if (sortStr) parsedSort = JSON.parse(sortStr);
+    } catch (err) {
+      alert('Failed to parse URL search parameters: ' + err.message);
+      return;
+    }
+
+    let defaultName = 'Captured Search';
+    const kwRule = parsedFilter.find(r => r.name === 'KEYWORD');
+    if (kwRule && kwRule.value) {
+      let kwText = typeof kwRule.value === 'object' ? kwRule.value.value : kwRule.value;
+      if (kwText) {
+        if (kwText.startsWith('"') && kwText.endsWith('"')) kwText = kwText.slice(1, -1);
+        defaultName = `Search: ${kwText}`;
+      }
+    }
+
+    const presetName = prompt('Enter a name for this captured preset:', defaultName);
+    if (!presetName || !presetName.trim()) return;
+
+    const data = await chrome.storage.sync.get(['presets']);
+    const presets = data.presets || [];
+
+    const newPreset = {
+      id: 'preset_' + Date.now(),
+      name: presetName.trim(),
+      filter: parsedFilter,
+      sort: parsedSort
+    };
+
+    presets.push(newPreset);
+
+    await chrome.storage.sync.set({
+      presets,
+      activePresetId: newPreset.id
+    });
+
+    await refreshToolbarAndPage(newPreset.id);
+    if (inPageModalOverlay && !inPageModalOverlay.classList.contains('hidden')) {
+      renderInPagePresetList();
+    }
+  }
 
   async function openInPagePresetManager() {
     if (!inPageModalOverlay) {
@@ -197,7 +259,10 @@
     const activePresetId = data.activePresetId || presets[0]?.id;
 
     let html = `
-      <button class="yt-cms-btn-primary" id="yt-cms-btn-new-preset">+ Create New Preset</button>
+      <div style="display: flex; gap: 8px;">
+        <button class="yt-cms-btn-primary" id="yt-cms-btn-new-preset" style="flex:1;">+ Create New Preset</button>
+        <button class="yt-cms-btn-secondary" id="yt-cms-btn-capture-inpage" style="flex:1;">📷 Save Current Search</button>
+      </div>
       <div style="display: flex; flex-direction: column; gap: 8px; margin-top: 8px;">
     `;
 
@@ -230,6 +295,13 @@
     document.getElementById('yt-cms-btn-new-preset').addEventListener('click', () => {
       openInPagePresetEditor(null, presets, activePresetId);
     });
+
+    const btnCapInpage = document.getElementById('yt-cms-btn-capture-inpage');
+    if (btnCapInpage) {
+      btnCapInpage.addEventListener('click', () => {
+        captureCurrentPageSearchAsPreset();
+      });
+    }
 
     body.querySelectorAll('.btn-edit').forEach(btn => {
       btn.addEventListener('click', () => {
@@ -384,7 +456,7 @@
           if (startVal && endVal) {
             const [sY, sM, sD] = startVal.split('-').map(n => parseInt(n, 10));
             const [eY, eM, eD] = endVal.split('-').map(n => parseInt(n, 10));
-            parsedVal = { start: { day: sD, month: sM, year: sY }, end: { day: eD, month: eM, year: eY } };
+            parsedVal = { start: { day: sD, month: sM - 1, year: sY }, end: { day: eD, month: eM - 1, year: eY } };
           }
         } else {
           let rawText = valContainer.querySelector('.rule-val-input')?.value.trim() || '';
@@ -602,8 +674,8 @@
       let sStr = '', eStr = '';
       if (typeof currentValue === 'object' && currentValue?.start && currentValue?.end) {
         const s = currentValue.start, e = currentValue.end;
-        if (s.year) sStr = `${s.year}-${String(s.month).padStart(2,'0')}-${String(s.day).padStart(2,'0')}`;
-        if (e.year) eStr = `${e.year}-${String(e.month).padStart(2,'0')}-${String(e.day).padStart(2,'0')}`;
+        if (s.year) sStr = `${s.year}-${String(s.month + 1).padStart(2,'0')}-${String(s.day).padStart(2,'0')}`;
+        if (e.year) eStr = `${e.year}-${String(e.month + 1).padStart(2,'0')}-${String(e.day).padStart(2,'0')}`;
       }
       const sInp = document.createElement('input'); sInp.type = 'date'; sInp.className = 'yt-cms-form-input'; sInp.value = sStr;
       const eInp = document.createElement('input'); eInp.type = 'date'; eInp.className = 'yt-cms-form-input'; eInp.value = eStr;
