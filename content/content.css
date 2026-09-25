@@ -3,7 +3,7 @@
 .yt-cms-filter-bar {
   position: fixed;
   bottom: 24px;
-  right: 24px;
+  left: 24px;
   z-index: 999999;
   background: rgba(24, 24, 27, 0.88);
   backdrop-filter: blur(12px);
@@ -36,18 +36,27 @@
   letter-spacing: 0.2px;
 }
 
-.yt-cms-bar-toggle {
+.yt-cms-bar-actions {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.yt-cms-bar-icon-btn, .yt-cms-bar-toggle {
   background: none;
   border: none;
   color: #a1a1aa;
   cursor: pointer;
-  font-size: 14px;
-  padding: 0 4px;
+  font-size: 13px;
+  padding: 2px 4px;
   line-height: 1;
+  border-radius: 4px;
+  transition: color 0.15s, background 0.15s;
 }
 
-.yt-cms-bar-toggle:hover {
+.yt-cms-bar-icon-btn:hover, .yt-cms-bar-toggle:hover {
   color: #ffffff;
+  background: rgba(255, 255, 255, 0.1);
 }
 
 .yt-cms-bar-body {
@@ -58,6 +67,212 @@
 
 .yt-cms-bar-body.hidden {
   display: none;
+}
+
+/* In-Page Preset Manager Modal Overlay */
+.yt-cms-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.75);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  z-index: 9999999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+
+.yt-cms-modal-overlay.hidden {
+  display: none !important;
+}
+
+.yt-cms-modal-box {
+  background: #121215;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 14px;
+  width: 100%;
+  max-width: 480px;
+  max-height: 85vh;
+  display: flex;
+  flex-direction: column;
+  color: #f4f4f6;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.7);
+  overflow: hidden;
+}
+
+.yt-cms-modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 18px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.yt-cms-modal-header h3 {
+  font-size: 15px;
+  font-weight: 700;
+  color: #ffffff;
+  margin: 0;
+}
+
+.yt-cms-modal-close {
+  background: none;
+  border: none;
+  color: #a1a1aa;
+  font-size: 20px;
+  cursor: pointer;
+  line-height: 1;
+}
+
+.yt-cms-modal-close:hover {
+  color: #ffffff;
+}
+
+.yt-cms-modal-body {
+  padding: 16px 18px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.yt-cms-btn-primary {
+  background: #ff0033;
+  color: #ffffff;
+  border: none;
+  border-radius: 6px;
+  padding: 8px 12px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.yt-cms-btn-primary:hover {
+  background: #e0002d;
+}
+
+.yt-cms-btn-secondary {
+  background: rgba(255, 255, 255, 0.08);
+  color: #f4f4f5;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 6px;
+  padding: 8px 12px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.yt-cms-btn-secondary:hover {
+  background: rgba(255, 255, 255, 0.15);
+}
+
+.yt-cms-btn-text {
+  background: none;
+  border: none;
+  color: #38bdf8;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 4px 6px;
+}
+
+.yt-cms-btn-text:hover {
+  text-decoration: underline;
+}
+
+.yt-cms-manager-item {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 8px;
+  padding: 10px 12px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.yt-cms-manager-item.active {
+  border-color: #ff0033;
+}
+
+.yt-cms-item-title {
+  font-weight: 600;
+  font-size: 13px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.yt-cms-active-badge {
+  background: rgba(255, 0, 51, 0.3);
+  color: #ff4d4d;
+  font-size: 9px;
+  padding: 1px 5px;
+  border-radius: 4px;
+  text-transform: uppercase;
+  font-weight: 700;
+}
+
+.yt-cms-item-meta {
+  font-size: 11px;
+  color: #a1a1aa;
+}
+
+.yt-cms-item-actions {
+  display: flex;
+  gap: 4px;
+}
+
+.yt-cms-icon-action {
+  background: none;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: #a1a1aa;
+  padding: 3px 6px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 12px;
+}
+
+.yt-cms-icon-action:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: #ffffff;
+}
+
+.yt-cms-icon-action.danger:hover {
+  background: rgba(255, 0, 51, 0.2);
+  color: #ff4d4d;
+  border-color: rgba(255, 0, 51, 0.4);
+}
+
+.yt-cms-form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.yt-cms-form-label {
+  font-size: 11px;
+  font-weight: 600;
+  color: #a1a1aa;
+}
+
+.yt-cms-form-input, .yt-cms-form-select {
+  background: #18181c;
+  color: #f4f4f5;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 6px;
+  padding: 6px 8px;
+  font-size: 12px;
+  outline: none;
+}
+
+.yt-cms-form-input:focus, .yt-cms-form-select:focus {
+  border-color: #ff0033;
 }
 
 .yt-cms-bar-label {

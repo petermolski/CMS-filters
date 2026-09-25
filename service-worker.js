@@ -14,27 +14,13 @@ const DEFAULT_PRESETS = [
       columnType: 'totalViews',
       sortOrder: 'DESCENDING'
     }
-  },
-  {
-    id: 'shorts-unclaimed',
-    name: 'Shorts Only (Unclaimed)',
-    filter: [
-      { name: 'ALLOWLISTED', value: 'FALSE' },
-      { name: 'CLAIM_STATUS', value: 'VIDEO_CLAIM_STATUS_NOT_CLAIMED_BY_OWNER' },
-      { name: 'CLAIMABLE', value: ['VIDEO_CLAIMABILITY_CAN_CLAIM'] },
-      { name: 'SHORTS', value: 'TRUE' }
-    ],
-    sort: {
-      columnType: 'totalViews',
-      sortOrder: 'DESCENDING'
-    }
   }
 ];
 
 // Initialize default storage on install
 chrome.runtime.onInstalled.addListener(async () => {
   const existing = await chrome.storage.sync.get(['autoApply', 'activePresetId', 'presets']);
-  
+
   const updates = {};
   if (existing.autoApply === undefined) {
     updates.autoApply = true;
@@ -81,13 +67,36 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   return true; // Keep message channel open for async response
 });
 
-// Helper to construct YouTube CMS URL with filter and sort parameters
+// Helper to construct YouTube CMS URL with filter and sort parameters while preserving active search parameters
 function buildUrlWithPreset(currentUrlStr, preset) {
   const url = new URL(currentUrlStr);
-  const filterStr = JSON.stringify(preset.filter);
-  const sortStr = JSON.stringify(preset.sort);
+  let existingFilter = [];
+  const existingFilterStr = url.searchParams.get('filter');
 
-  url.searchParams.set('filter', filterStr);
-  url.searchParams.set('sort', sortStr);
+  if (existingFilterStr) {
+    try {
+      existingFilter = JSON.parse(existingFilterStr);
+    } catch (e) {
+      existingFilter = [];
+    }
+  }
+
+  // Start merged filter with preset rules
+  const mergedFilter = [...preset.filter];
+
+  // Preserve rules from existing URL (e.g. KEYWORD) that are NOT explicitly overridden by preset
+  if (Array.isArray(existingFilter)) {
+    existingFilter.forEach(existingRule => {
+      if (existingRule && existingRule.name) {
+        const isOverridden = mergedFilter.some(r => r.name === existingRule.name);
+        if (!isOverridden) {
+          mergedFilter.push(existingRule);
+        }
+      }
+    });
+  }
+
+  url.searchParams.set('filter', JSON.stringify(mergedFilter));
+  url.searchParams.set('sort', JSON.stringify(preset.sort));
   return url.toString();
 }

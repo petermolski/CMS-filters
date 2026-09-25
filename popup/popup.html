@@ -47,11 +47,14 @@
       </label>
     </section>
 
-    <!-- Active Preset Selector -->
+    <!-- Active Preset Selector Card -->
     <section class="card preset-card">
       <div class="card-header">
-        <h2>Filter Preset</h2>
-        <button id="btn-new-preset" class="btn-text">+ New Preset</button>
+        <h2>Active Filter Preset</h2>
+        <div class="header-actions">
+          <button id="btn-edit-active" class="btn-text" title="Edit current preset">✏️ Edit</button>
+          <button id="btn-manage-presets" class="btn-text" title="Manage all presets">⚙️ Manage Menu</button>
+        </div>
       </div>
       <select id="preset-select" class="preset-dropdown"></select>
     </section>
@@ -61,16 +64,13 @@
       <button id="btn-apply-tab" class="btn btn-primary">
         ⚡ Apply Filter to Current Tab
       </button>
-      <button id="btn-open-cms" class="btn btn-secondary">
-        ↗ Open YouTube CMS Claims
-      </button>
     </section>
 
     <!-- Active Filter Summary -->
     <section class="card details-card">
       <div class="card-header">
-        <h2>Preset Configuration</h2>
-        <button id="btn-toggle-json" class="btn-text">Edit JSON</button>
+        <h2>Preset Configuration Summary</h2>
+        <button id="btn-toggle-json" class="btn-text">Edit Raw JSON</button>
       </div>
 
       <div id="filter-summary" class="summary-list"></div>
@@ -94,6 +94,101 @@
     <footer class="popup-footer">
       <div id="status-message" class="status-msg"></div>
     </footer>
+  </div>
+
+  <!-- Preset Manager Modal Overlay -->
+  <div id="modal-overlay" class="modal-overlay hidden">
+    <div class="modal-content">
+      
+      <!-- Preset List View -->
+      <div id="view-preset-list" class="modal-view">
+        <div class="modal-header">
+          <h3>Preset Management Menu</h3>
+          <button id="btn-close-modal" class="btn-close" title="Close">&times;</button>
+        </div>
+        <div class="modal-body">
+          <button id="btn-create-preset" class="btn btn-primary btn-sm mb-12">
+            ➕ Create New Preset
+          </button>
+          <div id="manager-preset-list" class="preset-manager-list"></div>
+        </div>
+      </div>
+
+      <!-- Preset Editor Form View -->
+      <div id="view-preset-editor" class="modal-view hidden">
+        <div class="modal-header">
+          <h3 id="editor-title">Edit Preset</h3>
+          <button id="btn-back-to-list" class="btn-text">← Back to Menu</button>
+        </div>
+        <div class="modal-body">
+          <div class="form-group">
+            <label for="editor-preset-name" class="form-label">Preset Name:</label>
+            <input type="text" id="editor-preset-name" class="form-input" placeholder="e.g. Shorts Unclaimed">
+          </div>
+
+          <!-- Mode Toggle: Form vs JSON -->
+          <div class="mode-toggle-row">
+            <span class="mode-label">Edit Mode:</span>
+            <div class="btn-group-sm">
+              <button id="btn-mode-visual" class="btn-mode active">Visual Form</button>
+              <button id="btn-mode-json" class="btn-mode">Raw JSON</button>
+            </div>
+          </div>
+
+          <!-- Visual Rules Editor Section -->
+          <div id="editor-visual-section" class="editor-section">
+            <div class="section-subhead">
+              <span class="subhead-title">Filter Rules</span>
+              <button id="btn-add-rule" class="btn-text">+ Add Rule</button>
+            </div>
+            
+            <div id="rules-container" class="rules-list"></div>
+
+            <div class="section-subhead mt-12">
+              <span class="subhead-title">Sort Settings</span>
+            </div>
+            
+            <div class="form-row">
+              <div class="form-group flex-1">
+                <label for="editor-sort-column" class="form-label">Column:</label>
+                <select id="editor-sort-column" class="form-select">
+                  <option value="totalViews">Total Views (totalViews)</option>
+                  <option value="relevance">Relevance (relevance)</option>
+                  <option value="publishDate">Published Date (publishDate)</option>
+                </select>
+              </div>
+
+              <div class="form-group flex-1">
+                <label for="editor-sort-order" class="form-label">Order:</label>
+                <select id="editor-sort-order" class="form-select">
+                  <option value="DESCENDING">Descending</option>
+                  <option value="ASCENDING">Ascending</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <!-- JSON Raw Textarea Section -->
+          <div id="editor-json-section" class="editor-section hidden">
+            <div class="form-group">
+              <label for="editor-json-filter" class="form-label">Filter Rules JSON:</label>
+              <textarea id="editor-json-filter" rows="6" class="json-textarea"></textarea>
+            </div>
+            <div class="form-group mt-8">
+              <label for="editor-json-sort" class="form-label">Sort Config JSON:</label>
+              <textarea id="editor-json-sort" rows="4" class="json-textarea"></textarea>
+            </div>
+          </div>
+
+          <!-- Editor Actions -->
+          <div class="modal-footer">
+            <button id="btn-save-preset" class="btn btn-primary">Save Preset</button>
+            <button id="btn-cancel-editor" class="btn btn-secondary">Cancel</button>
+          </div>
+        </div>
+      </div>
+
+    </div>
   </div>
 
   <script src="popup.js"></script>

@@ -6,9 +6,13 @@ A unified Google Chrome Extension (Manifest V3) designed for YouTube Content Man
 
 ## 🚀 Key Features
 
-### ⚡ 1. Auto-Filters & Preset Manager
+### ⚡ 1. Auto-Filters & Preset Manager Menu
 - **Automated Default Filters**: Automatically select and apply default search and sorting parameters whenever you visit YouTube Studio Manual Claims.
-- **Custom Presets**: Create, save, and switch between custom filter combinations tailored to your workflow.
+- **Interactive Preset Management Menu**:
+  - ✏️ **Visual Rule Editor**: Easily create, rename, and edit filter parameters (e.g. `ALLOWLISTED`, `CLAIM_STATUS`, `SHORTS`, `DURATION`) and sort criteria without writing raw code.
+  - 📋 **Duplicate & Delete**: Instantly clone existing presets as starting points for new workflows or clean up unused ones.
+  - ⚙️ **Dual-Mode Editor**: Toggle between a visual form builder and an Advanced Raw JSON mode for power users.
+- **Custom Presets**: Create, save, and switch between custom filter combinations tailored to your daily workflow.
 - **Floating Quick Bar**: Injects a sleek, non-intrusive floating pill bar into YouTube Studio for 1-click preset switching.
 
 ### 🔗 2. Video ID Linkifier & Copy Button
